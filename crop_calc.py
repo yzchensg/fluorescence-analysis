@@ -35,7 +35,7 @@ def ask_image_choices(image_files: list[Path]) -> list[int]:
         ).strip()
 
         if user_input.lower() == "all":
-            return image_files
+            return list(range(len(image_files)))
 
         try:
             selected_indices = [

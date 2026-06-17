@@ -100,6 +100,13 @@ def main():
     )
 
     parser.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="Path to the folder where adjusted images will be saved."
+    )
+
+    parser.add_argument(
         "--min",
         dest="min_value",
         type=int,
@@ -126,11 +133,15 @@ def main():
 
     if not input_folder.is_dir():
         raise NotADirectoryError(f"Input path is not a folder: {input_folder}")
-
+    
     if min_value >= max_value:
         raise ValueError("--min must be smaller than --max")
     
-    output_folder = input_folder / f"AdjustedToDepth_{min_value}-{max_value}"
+    if args.output_folder is None:
+        output_folder = input_folder.parent / f"Adjusted-{min_value}-{max_value}"
+    else:
+        output_folder = args.output_folder
+    
     process_folder(input_folder, output_folder, min_value, max_value)
 
 if __name__ == "__main__":
