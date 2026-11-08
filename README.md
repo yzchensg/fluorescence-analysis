@@ -13,16 +13,16 @@ Small Python scripts for basic image processing and analysis.
 
 Step 1: Display histograms to figure out which are the fluorescent images and what are their ranges; default min 0 max 4096.
 ```bash
-python display_histograms.py <image_folder> 
-  --min 0 
-  --max 4096
+python display_histograms.py ../../database/fluorescamine-0728/raw \
+  --min 0 \
+  --max 4096 
 ```
 Step 2: Note down the fluorescent and brightfield images, and scale the images separately to the observed range by manually inputting the values. 
 ```bash
-python scale_to_256.py <image_folder> 
-  --output <output_folder>
-  --min <min_value> 
-  --max <max_value>
+python scale_to_256.py ../../database/fluorescamine-0728/raw \
+  --output ../../database/fluorescamine-0728/scale-2000 \
+  --min 0 \
+  --max 200
 ```
 Step 3: Note down the fluorescent image indices. Select them for median/mean analysis.
 ```bash
@@ -34,3 +34,8 @@ python crop_calc.py <input_folder> <scaled_images_folder> <output_folder>
 ```bash
 pip install numpy pillow matplotlib
 ```
+
+# Updates:
+- What's needed?
+1. Simplify input/output address documentation
+2. Automatically choose the best regions and ignore outliers

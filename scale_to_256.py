@@ -3,7 +3,7 @@ from pathlib import Path
 from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
-from analysis_helper import find_images
+from analysis_helper import find_images, ask_input_folder, ask_min, ask_max
 
 
 def plot_histogram(
@@ -57,92 +57,24 @@ def adjust_image(
     except Exception as e:
         print(f"Error processing {input_path}: {e}")
 
-def process_folder(
-    input_folder: Path,
-    output_folder: Path,
-    min_value: int,
-    max_value: int,
-) -> None:
-    supported_extensions = {
-        ".tif", ".tiff",
-        ".jpg", ".jpeg",
-        ".png",
-        ".bmp",
-        ".gif",
-        ".webp",
-    }
-
-    output_folder.mkdir(parents=True, exist_ok=True)
-    image_files = find_images(input_folder)
-
-    for input_path in image_files:
-        if not input_path.is_file():
-            continue
-
-        if input_path.suffix.lower() not in supported_extensions:
-            continue
-
-        output_path = output_folder / (
-            f"{input_path.stem}_min-max_{min_value}-{max_value}.png"
-        )
-
-        adjust_image(input_path, output_path, min_value, max_value)
-
 def main():
-    parser = argparse.ArgumentParser(
-        description="Adjust images in a folder to a given pixel intensity range."
-    )
-
-    parser.add_argument(
-        "input_folder",
-        type=Path,
-        help="Path to the folder containing input images."
-    )
-
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=None,
-        help="Path to the folder where adjusted images will be saved."
-    )
-
-    parser.add_argument(
-        "--min",
-        dest="min_value",
-        type=int,
-        required=True,
-        help="Minimum pixel intensity."
-    )
-
-    parser.add_argument(
-        "--max",
-        dest="max_value",
-        type=int,
-        required=True,
-        help="Maximum pixel intensity."
-    )
-
-    args = parser.parse_args()
-
-    input_folder = Path(args.input_folder)
-    min_value = args.min_value
-    max_value = args.max_value
-
-    if not input_folder.exists():
-        raise FileNotFoundError(f"Input folder does not exist: {input_folder}")
-
-    if not input_folder.is_dir():
-        raise NotADirectoryError(f"Input path is not a folder: {input_folder}")
     
-    if min_value >= max_value:
-        raise ValueError("--min must be smaller than --max")
-    
-    if args.output_folder is None:
-        output_folder = input_folder.parent / f"Adjusted-{min_value}-{max_value}"
-    else:
-        output_folder = args.output_folder
-    
-    process_folder(input_folder, output_folder, min_value, max_value)
+    input_folder = ask_input_folder()
+    min_value = ask_min()
+    max_value = ask_max(min_value)
+
+    # make output folder
+    output_folder = input_folder / f"{input_folder.name}_scaled_{min_value}-{max_value}"
+    output_folder.mkdir(parents=True, exist_ok=True)
+    assert output_folder.exists()
+
+    # find images and scale all of them
+    for image_path in find_images(input_folder, supported_extensions="raw"):
+        output_path = output_folder / f"{image_path.stem}_scaled_{min_value}-{max_value}.png"
+        adjust_image(image_path, output_path, min_value, max_value)
+
+    print("Done!")
+
 
 if __name__ == "__main__":
     main()

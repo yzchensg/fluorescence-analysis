@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 
-from analysis_helper import find_images
+from analysis_helper import find_images, ask_input_folder, ask_min, ask_max
 
 def compute_histogram(image_path: Path, min_val: int, max_val: int) -> tuple[np.ndarray, np.ndarray]:
     """
@@ -20,7 +20,7 @@ def plot_histograms(image_folder: Path, min_val: int, max_val: int) -> None:
     """
     Plot histograms for all images in a folder.
     """
-    image_files = find_images(Path(image_folder))
+    image_files = find_images(Path(image_folder), 'raw') # only find raw images
     num_images = len(image_files)
     
     cols = min(3, num_images)  # Limit to 3 columns for better readability
@@ -47,30 +47,15 @@ def plot_histograms(image_folder: Path, min_val: int, max_val: int) -> None:
     plt.show()
 
 def main():
-    parser = argparse.ArgumentParser(description='Plot histograms of images in a folder.')
-    parser.add_argument('folder', type=str, help='Path to the folder containing images')
+    input_folder = ask_input_folder()
+    min_value = ask_min()
+    max_value = ask_max(min_value)
 
-    parser.add_argument(
-        "--min",
-        dest="min_intensity",
-        type=int,
-        default=0,
-        help="Minimum pixel intensity to display. Default: 0."
-    )
-
-    parser.add_argument(
-        "--max",
-        dest="max_intensity",
-        type=int,
-        default=4096,
-        help="Maximum pixel intensity to display. Default: 4096."
-    )
-    args = parser.parse_args()
 
     plot_histograms(
-        args.folder,
-        args.min_intensity,
-        args.max_intensity,
+        input_folder,
+        min_value,
+        max_value,
     )
 
 if __name__ == "__main__":
